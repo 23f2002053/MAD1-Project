@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Register</title>
+  <style>
+    body { font-family: sans-serif; padding: 40px; max-width: 400px; margin: auto; }
+    form { display: flex; flex-direction: column; gap: 10px; }
+    label { margin-top: 10px; }
+    input { padding: 8px; font-size: 1em; }
+    button { padding: 10px; background: green; color: white; border: none; cursor: pointer; }
+    button:hover { background: darkgreen; }
+    .link { margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Register</h1>
+  <form method="POST">
+    <label for="username">Username:</label>
+    <input name="username" required>
+
+    <label for="password">Password:</label>
+    <input type="password" name="password" required>
+
+    <button type="submit">Register</button>
+  </form>
+  <div class="link">
+    Already have an account? <a href="/login">Login</a>
+  </div>
+</body>
+</html>

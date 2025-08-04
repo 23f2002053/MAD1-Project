@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            flex-grow: 1;
+        }
+        .header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+        }
+        .nav {
+            background-color: #333;
+            padding: 10px 20px;
+            text-align: center;
+        }
+        .nav a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            margin: 0 5px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .nav a:hover {
+            background-color: #555;
+        }
+        .flash-messages {
+            list-style: none;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .flash-messages li {
+            padding: 8px 12px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .flash-messages .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .flash-messages .danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .flash-messages .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        /* --- Table Styling --- */
+        .centered-table-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            margin-bottom: 40px;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            max-width: 850px;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            border: 1px solid #e0e0e0;
+            padding: 12px 15px;
+            text-align: left;
+            vertical-align: middle;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            color: #555;
+            text-transform: uppercase;
+            font-size: 0.9em;
+        }
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tbody tr:hover {
+            background-color: #f0f0f0;
+        }
+        /* --- Button Styling --- */
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 15px;
+            margin: 5px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .button.secondary {
+            background-color: #008CBA;
+        }
+        .button.danger {
+            background-color: #f44336;
+        }
+        .button:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+        }
+        .button.secondary:hover {
+            background-color: #007bb5;
+        }
+        .button.danger:hover {
+            background-color: #da190b;
+        }
+        .text-center {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Parking Management System</h1>
+    </div>
+    <div class="nav">
+        <a href="/user/dashboard">Dashboard</a>
+        <a href="/user/lots">Book Parking Spot</a>
+        <a href="/user/history">View Parking History</a>
+        <a href="/logout">Logout</a>
+    </div>
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flash-messages">
+                    {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <h2 class="text-center">Welcome, {{ current_user.username }}!</h2>
+
+        <h3 style="margin-top: 30px;" class="text-center">Your Current Reservations</h3>
+        {% if reservations %}
+            <div class="centered-table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Vehicle Number</th>
+                            <th>Lot Name</th>
+                            <th>Price/Hour</th>
+                            <th>Status</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for res in reservations %}
+                            <tr>
+                                <td>{{ res.vehicle_number }}</td>
+                                <td>{{ res.lot_name }} <br>({{ res.address }}, {{ res.pin_code }})</td>
+                                <td>{{ res.price_per_hour }}</td>
+                                <td>{{ res.payment_status }}</td>
+                                <td>{{ res.start_time }}</td>
+                                <td>{{ res.end_time }}</td>
+                                <td>
+                                    {% if res.payment_status == 'Bookedin' %}
+                                        <form action="/user/park_in/{{ res.id }}" method="POST" style="display:inline;">
+                                            <button type="submit" class="button secondary">Park In</button>
+                                        </form>
+                                    {% elif res.payment_status == 'Parkedin' %}
+                                        <form action="/user/release/{{ res.id }}" method="POST" style="display:inline;">
+                                            <button type="submit" class="button danger">Release & Pay</button>
+                                        </form>
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-center">You have no active reservations.</p>
+        {% endif %}
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="/user/lots" class="button">Book New Parking Spot</a>
+        </div>
+    </div>
+</body>
+</html>
